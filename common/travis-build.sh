@@ -20,11 +20,11 @@ popd
 if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
   ./gradlew uploadArchives -PnablarchRepoUsername=${REPO_USER} -PnablarchRepoPassword=${DEPLOY_PASSWORD} \
                            -PnablarchRepoReferenceUrl=${DEVELOP_REPO_URL} -PnablarchRepoReferenceName=${DEVELOP_REPO_NAME} \
-                           -PnablarchRepoDeployUrl=${DEVELOP_REPO_URL} -PnablarchRepoName=${DEVELOP_REPO_NAME} \
+                           -PnablarchRepoDeployUrl=dav:${DEVELOP_REPO_URL} -PnablarchRepoName=${DEVELOP_REPO_NAME} \
                            --no-daemon
 else
   ./gradlew build -PnablarchRepoUsername=${REPO_USER} -PnablarchRepoPassword=${DEPLOY_PASSWORD} \
                   -PnablarchRepoReferenceUrl=${DEVELOP_REPO_URL} -PnablarchRepoReferenceName=${DEVELOP_REPO_NAME} \
-                  -PnablarchRepoDeployUrl=${DEVELOP_REPO_URL} -PnablarchRepoName=${DEVELOP_REPO_NAME} \
+                  -PnablarchRepoDeployUrl=dav:${DEVELOP_REPO_URL} -PnablarchRepoName=${DEVELOP_REPO_NAME} \
                   --no-daemon
 fi
