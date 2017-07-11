@@ -37,16 +37,16 @@ fi
 function uploadDir() {
 
   local readonly _local_upload_dir=$1
+  local readonly _remote_base_dir=$2
 
   ### Firstly, create base directory.
     # ex. create /test-report/nablarch/nablarch-core/12/
   (
    IFS='/'
-   local readonly base_dir="${TRAVIS_REPO_SLUG}/${TRAVIS_BUILD_NUMBER}"
    local tmp_dir=""
-   for it in ${base_dir}; do
+   for it in ${_remote_base_dir}; do
      tmp_dir="${tmp_dir}/${it}"
-     curl --digest --user ${REPO_USER}:${DEPLOY_PASSWORD} -X MKCOL \
+     curl -sS --digest --user ${REPO_USER}:${DEPLOY_PASSWORD} -X MKCOL \
       "${DEVELOP_REPO_URL}/test-report${tmp_dir}" > /dev/null
    done
   )
@@ -61,8 +61,8 @@ function uploadDir() {
          continue
     fi
   
-    curl --digest --user ${REPO_USER}:${DEPLOY_PASSWORD} -X MKCOL \
-      ${DEVELOP_REPO_URL}/test-report/${TRAVIS_REPO_SLUG}/${TRAVIS_BUILD_NUMBER}/${vd} > /dev/null
+    curl -sS --digest --user ${REPO_USER}:${DEPLOY_PASSWORD} -X MKCOL \
+      ${DEVELOP_REPO_URL}/test-report/${_remote_base_dir}/${vd} > /dev/null
   done
   
   ### Finally, upload all files.
@@ -74,13 +74,16 @@ function uploadDir() {
          continue
     fi
   
-    curl --digest --user ${REPO_USER}:${DEPLOY_PASSWORD} --upload-file ${vf} \
-      ${DEVELOP_REPO_URL}/test-report/${TRAVIS_REPO_SLUG}/${TRAVIS_BUILD_NUMBER}/${vf} > /dev/null
+    curl -sS --digest --user ${REPO_USER}:${DEPLOY_PASSWORD} --upload-file ${vf} \
+      ${DEVELOP_REPO_URL}/test-report/${_remote_base_dir}/${vf} > /dev/null
   done
   popd
 }
 
-uploadDir "${TRAVIS_BUILD_DIR}/build/reports/tests/"
+remote_base_dir="${TRAVIS_REPO_SLUG}/${TRAVIS_BUILD_NUMBER}_`date +%Y%m%d_%H%M%S`"
+uploadDir "${TRAVIS_BUILD_DIR}/build/reports/tests/" ${remote_base_dir}
 
+echo
+echo
 echo "Save unit test report."
-echo "  ${DEVELOP_REPO_URL}/test-report/${TRAVIS_REPO_SLUG}/${TRAVIS_BUILD_NUMBER}"
+echo "  ${DEVELOP_REPO_URL}/test-report/${remote_base_dir}"
