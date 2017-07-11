@@ -29,6 +29,13 @@ else
                   --no-daemon
 fi
 
+echo "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"
+ls ${TRAVIS_BUILD_DIR}
+ls ${TRAVIS_BUILD_DIR}/build/
+ls ${TRAVIS_BUILD_DIR}/build/reports/
+
+exit
+
 
 # Upload Unit test report.
 function uploadDir() {
