@@ -17,15 +17,6 @@ popd
 # if it creates pull request, execute `gradlew build` only.
 # if it merges pull request to develop branch or dilectly commit on develop branch, execute `gradlew uploadArchives`.
 # Waning, TRAVIS_PULL_REQUEST variable is 'false' or pull request number, 1,2,3 and so on.
-
-echo "@@@@@@@@@@@@@@@@@"
-echo ${TRAVIS_BRANCH}
-echo ${TRAVIS_PULL_REQUEST}
-echo ${TRAVIS_REPO_SLUG}
-echo ${TRAVIS_BUILD_DIR}
-echo ${TRAVIS_PULL_REQUEST_BRANCH}
-echo "@@@@@@@@@@@@@@@@@"
-
 if [ "${TRAVIS_PULL_REQUEST}" == "false" -a "${TRAVIS_BRANCH}" == "develop"  ]; then
   ./gradlew uploadArchives -PnablarchRepoUsername=${REPO_USER} -PnablarchRepoPassword=${DEPLOY_PASSWORD} \
                            -PnablarchRepoReferenceUrl=${DEVELOP_REPO_URL} -PnablarchRepoReferenceName=${DEVELOP_REPO_NAME} \
@@ -40,3 +31,37 @@ fi
 
 
 # Upload Unit test report.
+function uploadDir() {
+
+  local readonly _local_upload_dir=$1
+
+  ### Firstly, create all directory recursive. 
+    # Warn, sort directory depth in ascending order.
+  for vd in $(find ${_local_upload_dir} -type d -printf "%d %p\n" | \
+              sort -k1n | awk '{print $2}' | \
+              sed "s#${_local_upload_dir}##"); do
+  
+    if [ -z "${vd}" ]; then
+         continue
+    fi
+  
+    curl --digest --user ${REPO_USER}:${DEPLOY_PASSWORD} -X MKCOL \
+      ${DEVELOP_REPO_URL}/test-report/${TRAVIS_REPO_SLUG}/${TRAVIS_BUILD_NUMBER}/${vd}
+  done
+  
+  ### Finally, upload all files.
+  pushd ${_local_upload_dir}
+  for vf in $(find . -type f -printf "%p\n" | \
+              sed "s#\./##"); do
+  
+    if [ -z "${vf}" ]; then
+         continue
+    fi
+  
+    curl --digest --user ${REPO_USER}:${DEPLOY_PASSWORD} --upload-file ${vf} \
+      ${DEVELOP_REPO_URL}/test-report/${TRAVIS_REPO_SLUG}/${TRAVIS_BUILD_NUMBER}/
+  done
+  popd
+}
+
+uploadDir 'build/reports/tests/'
