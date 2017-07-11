@@ -4,20 +4,26 @@ export DEVELOP_REPO_URL=http://ec2-52-199-35-248.ap-northeast-1.compute.amazonaw
 export DEVELOP_REPO_NAME=repo
 
 
-# ***************
-# ****今だけ***** 
-# ***************
+#/--- ****今だけ***** 
 #  gradleプラグインのインストール
 git clone -b feature-travis https://github.com/travis-nab/nablarch-gradle-plugin.git
 pushd nablarch-gradle-plugin
 chmod +x gradlew
 ./gradlew install
 popd
+#****今だけ***** ---/
 
 
-# if Create Pull Request, execute `gradlew build` only.
-# if Merge Pull Request or directory commit, `gradlew uploadArchives`.
-if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
+# if it creates pull request, execute `gradlew build` only.
+# if it merges pull request to develop branch or dilectly commit on develop branch, execute `gradlew uploadArchives`.
+# Waning, TRAVIS_PULL_REQUEST variable is 'false' or pull request number, 1,2,3 and so on.
+
+echo "@@@@@@@@@@@@@@@@@"
+echo ${TRAVIS_BRANCH}
+echo ${TRAVIS_PULL_REQUEST}
+echo "@@@@@@@@@@@@@@@@@"
+
+if [ "${TRAVIS_PULL_REQUEST}" == "false" -a "${TRAVIS_BRANCH}" == "develop"  ]; then
   ./gradlew uploadArchives -PnablarchRepoUsername=${REPO_USER} -PnablarchRepoPassword=${DEPLOY_PASSWORD} \
                            -PnablarchRepoReferenceUrl=${DEVELOP_REPO_URL} -PnablarchRepoReferenceName=${DEVELOP_REPO_NAME} \
                            -PnablarchRepoDeployUrl=dav:${DEVELOP_REPO_URL} -PnablarchRepoName=${DEVELOP_REPO_NAME} \
@@ -28,3 +34,6 @@ else
                   -PnablarchRepoDeployUrl=dav:${DEVELOP_REPO_URL} -PnablarchRepoName=${DEVELOP_REPO_NAME} \
                   --no-daemon
 fi
+
+
+# Upload Unit test report.
