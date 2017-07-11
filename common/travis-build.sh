@@ -21,6 +21,9 @@ popd
 echo "@@@@@@@@@@@@@@@@@"
 echo ${TRAVIS_BRANCH}
 echo ${TRAVIS_PULL_REQUEST}
+echo ${TRAVIS_REPO_SLUG}
+echo ${TRAVIS_BUILD_DIR}
+echo ${TRAVIS_PULL_REQUEST_BRANCH}
 echo "@@@@@@@@@@@@@@@@@"
 
 if [ "${TRAVIS_PULL_REQUEST}" == "false" -a "${TRAVIS_BRANCH}" == "develop"  ]; then
