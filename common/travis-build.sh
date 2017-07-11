@@ -35,8 +35,21 @@ function uploadDir() {
 
   local readonly _local_upload_dir=$1
 
-  ### Firstly, create all directory recursive. 
-    # Warn, sort directory depth in ascending order.
+  ### Firstly, create base directory.
+    # ex. create /test-report/nablarch/nablarch-core/12/
+  (
+   IFS='/'
+   local readonly base_dir="${TRAVIS_REPO_SLUG}/${TRAVIS_BUILD_NUMBER}"
+   local tmp_dir=""
+   for it in ${base_dir}; do
+     tmp_dir="${tmp_dir}/${it}"
+     curl --digest --user ${REPO_USER}:${DEPLOY_PASSWORD} -X MKCOL \
+      "${DEVELOP_REPO_URL}/test-report${tmp_dir}"
+   done
+  )
+
+  ### Create all directory recursive. 
+    # ex. create /test-report/nablarch/nablarch-core/12/subdir1, subdir2,...
   for vd in $(find ${_local_upload_dir} -type d -printf "%d %p\n" | \
               sort -k1n | awk '{print $2}' | \
               sed "s#${_local_upload_dir}##"); do
@@ -59,7 +72,7 @@ function uploadDir() {
     fi
   
     curl --digest --user ${REPO_USER}:${DEPLOY_PASSWORD} --upload-file ${vf} \
-      ${DEVELOP_REPO_URL}/test-report/${TRAVIS_REPO_SLUG}/${TRAVIS_BUILD_NUMBER}/
+      ${DEVELOP_REPO_URL}/test-report/${TRAVIS_REPO_SLUG}/${TRAVIS_BUILD_NUMBER}/${vf}
   done
   popd
 }
