@@ -1,3 +1,6 @@
+#!/bin/bash
+set -o pipefail
+
 export REPO_USER=nablarch
 
 export DEVELOP_REPO_URL=http://ec2-52-199-35-248.ap-northeast-1.compute.amazonaws.com
@@ -44,7 +47,7 @@ function uploadDir() {
    for it in ${base_dir}; do
      tmp_dir="${tmp_dir}/${it}"
      curl --digest --user ${REPO_USER}:${DEPLOY_PASSWORD} -X MKCOL \
-      "${DEVELOP_REPO_URL}/test-report${tmp_dir}"
+      "${DEVELOP_REPO_URL}/test-report${tmp_dir}" > /dev/null
    done
   )
 
@@ -59,7 +62,7 @@ function uploadDir() {
     fi
   
     curl --digest --user ${REPO_USER}:${DEPLOY_PASSWORD} -X MKCOL \
-      ${DEVELOP_REPO_URL}/test-report/${TRAVIS_REPO_SLUG}/${TRAVIS_BUILD_NUMBER}/${vd}
+      ${DEVELOP_REPO_URL}/test-report/${TRAVIS_REPO_SLUG}/${TRAVIS_BUILD_NUMBER}/${vd} > /dev/null
   done
   
   ### Finally, upload all files.
@@ -72,9 +75,12 @@ function uploadDir() {
     fi
   
     curl --digest --user ${REPO_USER}:${DEPLOY_PASSWORD} --upload-file ${vf} \
-      ${DEVELOP_REPO_URL}/test-report/${TRAVIS_REPO_SLUG}/${TRAVIS_BUILD_NUMBER}/${vf}
+      ${DEVELOP_REPO_URL}/test-report/${TRAVIS_REPO_SLUG}/${TRAVIS_BUILD_NUMBER}/${vf} > /dev/null
   done
   popd
 }
 
 uploadDir "${TRAVIS_BUILD_DIR}/build/reports/tests/"
+
+echo "Save unit test report."
+echo "  ${DEVELOP_REPO_URL}/test-report/${TRAVIS_REPO_SLUG}/${TRAVIS_BUILD_NUMBER}"
