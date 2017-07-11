@@ -29,10 +29,6 @@ else
                   --no-daemon
 fi
 
-echo "@@@@@@@@@@@@@@@"
-echo "${TRAVIS_BUILD_DIR}"
-echo "@@@@@@@@@@@@@@@"
-
 
 # Upload Unit test report.
 function uploadDir() {
@@ -68,4 +64,4 @@ function uploadDir() {
   popd
 }
 
-uploadDir "${TRAVIS_BUILD_DIR}/build/reports/tests/
+uploadDir "${TRAVIS_BUILD_DIR}/build/reports/tests/"
